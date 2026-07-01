@@ -717,12 +717,21 @@ body{
 #slotView .demo-lcd-content{
   width:100%;
   height:100%;
-  display:grid;
-  place-items:center;
+  display:block;
   color:#ffe88c;
   font-weight:900;
   letter-spacing:.08em;
   background:transparent;
+}
+#slotView .demo-lcd-content picture,
+#slotView .demo-lcd-content img{
+  display:block;
+  width:100%;
+  height:100%;
+}
+#slotView .demo-lcd-content img{
+  object-fit:cover;
+  object-position:center;
 }
 .nav{
   position:fixed !important;
@@ -823,7 +832,12 @@ body{
           <div class="chance" id="chance"><strong>激アツ!!</strong><small>最後のリールに注目</small></div>
         </div>
         <div class="demo-lcd" id="demoLcd" aria-label="DEMO液晶">
-          <div class="demo-lcd-content" id="demoLcdContent"></div>
+          <div class="demo-lcd-content" id="demoLcdContent">
+            <picture>
+              <source srcset="LASPA-PREMIUM-SLOT/assets/laspa-demo-lcd.webp" type="image/webp">
+              <img src="LASPA-PREMIUM-SLOT/assets/laspa-demo-lcd.png" alt="LASPA PREMIUM SLOT サブディスプレイ" loading="lazy" decoding="async">
+            </picture>
+          </div>
         </div>
 
         <div class="controls">
