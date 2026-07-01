@@ -139,6 +139,12 @@ canvas{display:block;width:100%;height:auto}
 .badge{display:inline-block;margin-top:9px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:1000;background:rgba(108,255,184,.14);color:#91ffc9;border:1px solid rgba(108,255,184,.5)}
 .badge.next{background:rgba(255,211,106,.15);color:#ffe596;border-color:rgba(255,211,106,.55)}
 .footer{text-align:center;margin-top:10px;font-size:10px;color:#748397;position:relative;z-index:4}
+@media (max-width: 520px){
+  .bg:before,.bg:after,.steam span,.inner:after{animation:none!important}
+  .steam{display:none}
+  .push{animation:none}
+  .lamp{animation:none}
+}
 .jackpot{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,rgba(255,235,138,.38),rgba(255,45,85,.18) 38%,rgba(0,0,0,.88));pointer-events:none}
 .jackpot.show{display:flex;animation:jackpotOut 3.2s forwards}
 .jackpot .box{animation:jackpotPop .65s cubic-bezier(.2,1.4,.2,1)}
@@ -886,6 +892,7 @@ const CONFIG={
 const canvas=document.getElementById("slotCanvas");
 const ctx=canvas.getContext("2d");
 const W=canvas.width,H=canvas.height;
+const isMobilePerformance=matchMedia("(max-width: 520px), (pointer: coarse)").matches;
 const REEL_W=340, GAP=35, START_X=70;
 const VIEW_H=420, VIEW_Y=52;
 const CELL=168;
@@ -991,6 +998,7 @@ function getPreparedReelSymbol(key){
 for(const [key,src] of Object.entries(reelSymbolSources)){
  const img=new Image();
  img.decoding="async";
+ img.onload=()=>requestRender();
  img.src=src;
  reelSymbolImages[key]=img;
 }
@@ -1061,7 +1069,7 @@ function setView(name){
  if(nav)nav.classList.add("active");
  if(name==="home")renderHome();
  if(name==="tickets")renderTickets();
- if(name==="slot")updateSpinState();
+ if(name==="slot"){updateSpinState();requestRender();}
 }
 function renderHome(){
  const hs=document.getElementById("homeStatus");
@@ -1262,7 +1270,7 @@ class Reel{
   if(this.state==="spin"){
     this.offset+=this.speed*(dt/16.67);
     const tick=Math.floor(this.offset/CELL);
-    if(tick!==this.lastTick && tick%2===0){this.lastTick=tick; if(tick%4===0) beep(115+this.i*24,.009,"square",.008)}
+    if(tick!==this.lastTick && tick%(isMobilePerformance?4:2)===0){this.lastTick=tick; if(tick%(isMobilePerformance?8:4)===0) beep(115+this.i*24,.009,"square",.008)}
     if(now-this.spinStart>=this.spinMs){
       this.state="stop";this.stopStart=now;this.from=this.offset;
       const cycle = symbols.length * CELL;
@@ -1283,7 +1291,7 @@ class Reel{
     let overshoot=Math.sin(t*Math.PI)*CELL*.38;
     this.offset=this.from+(this.to-this.from)*e+overshoot;
     const tick=Math.floor(this.offset/CELL);
-    if(tick!==this.lastTick && tick%2===0 && t<.9){this.lastTick=tick;beep(130+this.i*25,.008,"square",.008)}
+    if(tick!==this.lastTick && tick%(isMobilePerformance?4:2)===0 && t<.9){this.lastTick=tick;beep(130+this.i*25,.008,"square",.008)}
     if(t>=1){
       const cycle = symbols.length * CELL;
       const centerAdjust = (CENTER_Y - VIEW_Y - CELL / 2);
@@ -1384,7 +1392,17 @@ function roundRect(x,y,w,h,r){
  ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
 const reels=[new Reel(0),new Reel(1),new Reel(2)];
-let last=performance.now(), spinning=false, stopCount=0, resultPrize=null, demoMode=false;
+let last=performance.now(), spinning=false, stopCount=0, resultPrize=null, demoMode=false, frameRunning=false;
+
+function hasActiveReelMotion(){
+ return spinning || reels.some(r=>r.state==="delay"||r.state==="spin"||r.state==="stop"||r.flash>0||r.glow>0);
+}
+function requestRender(){
+ if(frameRunning)return;
+ frameRunning=true;
+ last=performance.now();
+ requestAnimationFrame(drawFrame);
+}
 
 function drawFrame(now){
  const dt=Math.min(now-last,34);last=now;
@@ -1414,9 +1432,13 @@ function drawFrame(now){
  gradBottom.addColorStop(0,"rgba(0,0,0,0)");gradBottom.addColorStop(1,"rgba(0,0,0,.32)");
  ctx.fillStyle=gradBottom;ctx.fillRect(START_X,VIEW_Y+VIEW_H-80,REEL_W*3+GAP*2,80);
 
- requestAnimationFrame(drawFrame);
+ if(hasActiveReelMotion()){
+   requestAnimationFrame(drawFrame);
+ }else{
+   frameRunning=false;
+ }
 }
-requestAnimationFrame(drawFrame);
+requestRender();
 
 async function startSpin(forcedRank=null,isDemo=false){
  if(spinning)return;
@@ -1431,6 +1453,7 @@ async function startSpin(forcedRank=null,isDemo=false){
  reels[0].start(idx,0,1150,1350);
  reels[1].start(idx,0,1700,1500);
  reels[2].start(idx,0,2250,1650);
+ requestRender();
 }
 function finishSpin(){
  statusEl.textContent=resultPrize.rank+" 確定！";
@@ -1458,6 +1481,7 @@ function finishSpin(){
 
 /* Effect */
 function confetti(amount=90){
+ if(isMobilePerformance)amount=Math.max(28,Math.round(amount*.45));
  const box=document.getElementById("confetti");const colors=["#ffd36a","#74f7ff","#ff2d55","#6cffb8","#ffffff","#b56cff"];
  for(let i=0;i<amount;i++){const e=document.createElement("i");e.style.left=Math.random()*100+"vw";e.style.background=colors[Math.floor(Math.random()*colors.length)];e.style.animationDelay=Math.random()*0.9+"s";e.style.transform=`rotate(${Math.random()*360}deg)`;box.appendChild(e);setTimeout(()=>e.remove(),4300)}
 }
