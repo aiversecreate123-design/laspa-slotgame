@@ -1106,7 +1106,7 @@ function drawPrizeSymbol(ctx, symbol, boost=1){
  if(reelImage&&reelImage.complete&&reelImage.naturalWidth>0){
   ctx.save();
   const crop=getReelSymbolCrop(reelImage);
-  const fitMap={sauna:160,yomogi:142,discount500:158,discount300:158,discount100:158,pack:140,juice:140};
+  const fitMap={sauna:205,yomogi:186,discount500:204,discount300:204,discount100:204,pack:184,juice:184};
   const fit=fitMap[key]||154;
   const ratio=Math.min(fit/crop.w,fit/crop.h);
   const w=crop.w*ratio;
@@ -1232,10 +1232,10 @@ function drawPrizeSymbol(ctx, symbol, boost=1){
 /* Canvas Reel */
 class Reel{
  constructor(i){
-  this.i=i;this.x=START_X+i*(REEL_W+GAP);
+  this.i=i;this.x=START_X+i*(REEL_W+GAP);this.xAdjust=i===0?18:0;
   const centerAdjust=(CENTER_Y - VIEW_Y - CELL / 2);
   const initialCenter=[0,1,2][i] ?? 0;
-  this.offset=((initialCenter*CELL-centerAdjust)%(symbols.length*CELL)+symbols.length*CELL)%(symbols.length*CELL);
+  this.offset=((centerAdjust-initialCenter*CELL)%(symbols.length*CELL)+symbols.length*CELL)%(symbols.length*CELL);
   this.speed=0;this.state="idle";this.finalIdx=initialCenter;this.stopAt=0;this.flash=0;this.glow=0;this.lastTick=0;
  }
  start(finalIdx,delay,spinMs,stopMs){
@@ -1253,9 +1253,9 @@ class Reel{
       const mod = ((this.offset % cycle) + cycle) % cycle;
 
       // 中央ラインに finalIdx の図柄が来るように補正する。
-      // 描画上、中央に来るoffsetは「finalIdx*CELL - 中央補正値」。
+      // 逆回転描画で中央に finalIdx の図柄が来るoffsetへ補正する。
       const centerAdjust = (CENTER_Y - VIEW_Y - CELL / 2);
-      const desired = ((this.finalIdx * CELL - centerAdjust) % cycle + cycle) % cycle;
+      const desired = ((centerAdjust - this.finalIdx * CELL) % cycle + cycle) % cycle;
 
       let dist = (desired - mod + cycle) % cycle;
       dist += (4 + this.i * 2) * cycle;
@@ -1271,7 +1271,7 @@ class Reel{
     if(t>=1){
       const cycle = symbols.length * CELL;
       const centerAdjust = (CENTER_Y - VIEW_Y - CELL / 2);
-      this.offset = ((this.finalIdx * CELL - centerAdjust) % cycle + cycle) % cycle;
+      this.offset = ((centerAdjust - this.finalIdx * CELL) % cycle + cycle) % cycle;
       this.state="stopped";this.flash=1;this.glow=1;soundStop(this.i);vibrate([40,30,80]);
       return "stopped";
     }
@@ -1283,10 +1283,11 @@ class Reel{
  draw(){
   ctx.save();
   ctx.beginPath();
-  roundRect(this.x,VIEW_Y,REEL_W,VIEW_H,28);ctx.clip();
+  const reelX=this.x+this.xAdjust;
+  roundRect(reelX,VIEW_Y,REEL_W,VIEW_H,28);ctx.clip();
 
   const cycle=symbols.length*CELL;
-  const scroll=((this.offset%cycle)+cycle)%cycle;
+  const scroll=((-this.offset%cycle)+cycle)%cycle;
 
   // B方式: リール面はフレーム画像側に持たせ、Canvasは景品PNGだけを回す。
   const yBase=-scroll;
@@ -1297,13 +1298,13 @@ class Reel{
       const cy=y+CELL/2;
       const dist=Math.abs(cy-CENTER_Y);
       const centerBoost=Math.max(0,1-dist/220);
-      const scale=.58+centerBoost*.40;
+      const scale=.64+centerBoost*.48;
       const ySquash=.78+centerBoost*.18;
       const alpha=.34+centerBoost*.66;
 
       ctx.save();
       ctx.globalAlpha=alpha;
-      ctx.translate(this.x+REEL_W/2,cy);
+      ctx.translate(reelX+REEL_W/2,cy);
       ctx.scale(scale,ySquash*scale);
       if(this.state==="spin")ctx.filter="blur(.35px)";
       ctx.shadowColor="rgba(45,25,7,.42)";
@@ -1321,42 +1322,42 @@ class Reel{
   depth.addColorStop(.63,"rgba(255,255,255,.02)");
   depth.addColorStop(.86,"rgba(0,0,0,.14)");
   depth.addColorStop(1,"rgba(0,0,0,.62)");
-  ctx.fillStyle=depth;ctx.fillRect(this.x,VIEW_Y,REEL_W,VIEW_H);
+  ctx.fillStyle=depth;ctx.fillRect(reelX,VIEW_Y,REEL_W,VIEW_H);
 
-  const glass=ctx.createLinearGradient(this.x,VIEW_Y,this.x+REEL_W,VIEW_Y+VIEW_H);
+  const glass=ctx.createLinearGradient(reelX,VIEW_Y,reelX+REEL_W,VIEW_Y+VIEW_H);
   glass.addColorStop(0,"rgba(255,255,255,0)");
   glass.addColorStop(.38,"rgba(255,255,255,.16)");
   glass.addColorStop(.50,"rgba(255,255,255,.04)");
   glass.addColorStop(.64,"rgba(255,255,255,.18)");
   glass.addColorStop(1,"rgba(255,255,255,0)");
-  ctx.fillStyle=glass;ctx.fillRect(this.x,VIEW_Y,REEL_W,VIEW_H);
+  ctx.fillStyle=glass;ctx.fillRect(reelX,VIEW_Y,REEL_W,VIEW_H);
 
-  const edge=ctx.createLinearGradient(this.x,0,this.x+REEL_W,0);
+  const edge=ctx.createLinearGradient(reelX,0,reelX+REEL_W,0);
   edge.addColorStop(0,"rgba(0,0,0,.52)");
   edge.addColorStop(.11,"rgba(0,0,0,.10)");
   edge.addColorStop(.50,"rgba(255,255,255,.03)");
   edge.addColorStop(.89,"rgba(0,0,0,.10)");
   edge.addColorStop(1,"rgba(0,0,0,.54)");
-  ctx.fillStyle=edge;ctx.fillRect(this.x,VIEW_Y,REEL_W,VIEW_H);
+  ctx.fillStyle=edge;ctx.fillRect(reelX,VIEW_Y,REEL_W,VIEW_H);
 
   if(this.flash>0){
     ctx.globalAlpha=this.flash;
     ctx.fillStyle="rgba(255,246,180,.70)";
-    ctx.fillRect(this.x,VIEW_Y,REEL_W,VIEW_H);
+    ctx.fillRect(reelX,VIEW_Y,REEL_W,VIEW_H);
     ctx.globalAlpha=this.flash*.75;
-    const burst=ctx.createRadialGradient(this.x+REEL_W/2,CENTER_Y,12,this.x+REEL_W/2,CENTER_Y,190);
+    const burst=ctx.createRadialGradient(reelX+REEL_W/2,CENTER_Y,12,reelX+REEL_W/2,CENTER_Y,190);
     burst.addColorStop(0,"rgba(255,255,255,.90)");
     burst.addColorStop(.38,"rgba(255,211,106,.38)");
     burst.addColorStop(1,"rgba(255,211,106,0)");
-    ctx.fillStyle=burst;ctx.fillRect(this.x,VIEW_Y,REEL_W,VIEW_H);
+    ctx.fillStyle=burst;ctx.fillRect(reelX,VIEW_Y,REEL_W,VIEW_H);
   }
   if(this.glow>0){
     ctx.globalAlpha=this.glow*.82;
     ctx.strokeStyle="rgba(255,211,106,.92)";ctx.lineWidth=7;
-    roundRect(this.x+7,VIEW_Y+7,REEL_W-14,VIEW_H-14,22);ctx.stroke();
+    roundRect(reelX+7,VIEW_Y+7,REEL_W-14,VIEW_H-14,22);ctx.stroke();
     ctx.globalAlpha=this.glow*.38;
     ctx.strokeStyle="rgba(116,247,255,.68)";ctx.lineWidth=3;
-    roundRect(this.x+17,VIEW_Y+17,REEL_W-34,VIEW_H-34,18);ctx.stroke();
+    roundRect(reelX+17,VIEW_Y+17,REEL_W-34,VIEW_H-34,18);ctx.stroke();
   }
   ctx.restore();
  }
