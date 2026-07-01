@@ -810,7 +810,10 @@ body{
       </div>
 
       <div class="view" id="slotView">
-        <img class="laspa-reference-frame" src="LASPA-PREMIUM-SLOT/assets/laspa-premium-slot-official-frame.png" alt="LASPA PREMIUM SLOT 完成UIフレーム">
+        <picture>
+          <source srcset="LASPA-PREMIUM-SLOT/assets/laspa-premium-slot-official-frame.webp" type="image/webp">
+          <img class="laspa-reference-frame" src="LASPA-PREMIUM-SLOT/assets/laspa-premium-slot-official-frame.png" alt="LASPA PREMIUM SLOT 完成UIフレーム" decoding="async" fetchpriority="high">
+        </picture>
         <div class="screen">
           <div class="status" id="status">PUSH TO START</div>
           <div class="canvas-wrap">
@@ -943,13 +946,13 @@ const symbols=[
  {key:"juice", label:"ミニ缶ジュース", color:"#ff5a7d"}
 ];
 const reelSymbolSources={
- sauna:"LASPA-PREMIUM-SLOT/reels/sauna-lite.png",
- yomogi:"LASPA-PREMIUM-SLOT/reels/yomogi-lite.png",
- discount500:"LASPA-PREMIUM-SLOT/reels/ticket-500-lite.png",
- discount300:"LASPA-PREMIUM-SLOT/reels/ticket-300-lite.png",
- discount100:"LASPA-PREMIUM-SLOT/reels/ticket-100-lite.png",
- pack:"LASPA-PREMIUM-SLOT/reels/face-pack-lite.png",
- juice:"LASPA-PREMIUM-SLOT/reels/drink-lite.png"
+ sauna:"LASPA-PREMIUM-SLOT/reels/sauna-lite.webp",
+ yomogi:"LASPA-PREMIUM-SLOT/reels/yomogi-lite.webp",
+ discount500:"LASPA-PREMIUM-SLOT/reels/ticket-500-lite.webp",
+ discount300:"LASPA-PREMIUM-SLOT/reels/ticket-300-lite.webp",
+ discount100:"LASPA-PREMIUM-SLOT/reels/ticket-100-lite.webp",
+ pack:"LASPA-PREMIUM-SLOT/reels/face-pack-lite.webp",
+ juice:"LASPA-PREMIUM-SLOT/reels/drink-lite.webp"
 };
 const reelSymbolImages={};
 const reelSymbolCrops={};
@@ -1005,6 +1008,7 @@ for(const [key,src] of Object.entries(reelSymbolSources)){
  const img=new Image();
  img.decoding="async";
  img.onload=()=>requestRender();
+ img.onerror=()=>{if(img.src.endsWith(".webp"))img.src=src.replace(".webp",".png")};
  img.src=src;
  reelSymbolImages[key]=img;
 }
