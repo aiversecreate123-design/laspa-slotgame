@@ -175,6 +175,12 @@ canvas{display:block;width:100%;height:auto}
   background:linear-gradient(90deg,#74f7ff,#fff1aa,#ff9f1a);box-shadow:0 0 20px rgba(255,211,106,.25)
 }
 .main-actions button.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14);box-shadow:none}
+.back-to-slot{
+  margin-top:12px;
+  position:relative;
+  z-index:90;
+}
+.back-to-slot button{pointer-events:auto}
 .ticket-card{
   margin-top:12px;border-radius:22px;padding:14px;background:linear-gradient(135deg,rgba(255,211,106,.22),rgba(116,247,255,.10),rgba(255,45,85,.08)),rgba(255,255,255,.055);
   border:1px solid rgba(255,211,106,.55);box-shadow:0 0 24px rgba(255,211,106,.16);position:relative;overflow:hidden
@@ -192,6 +198,18 @@ canvas{display:block;width:100%;height:auto}
   width:100%;margin-top:10px;border:0;border-radius:14px;padding:13px;background:linear-gradient(90deg,#ffd36a,#ff9f1a);font-weight:1000;color:#1c0900;font-size:15px
 }
 .ticket-card .use:disabled{opacity:.55;filter:grayscale(1)}
+.prize-list,.rules-list{display:grid;gap:10px;margin-top:12px}
+.prize-row,.rules-list div{
+  border:1px solid rgba(255,211,106,.34);
+  border-radius:14px;
+  padding:10px 12px;
+  background:rgba(255,255,255,.055);
+  color:#fff5c8;
+  font-size:13px;
+  line-height:1.5;
+}
+.prize-row strong{display:block;color:#fff;font-size:15px;margin-bottom:3px}
+.prize-row span{color:#9dfcff;font-weight:900}
 .empty{text-align:center;margin-top:12px;padding:25px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:#c3d8e8;font-size:13px;line-height:1.7}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;align-items:flex-end;justify-content:center;padding:14px}
 .modal.show{display:flex}
@@ -412,10 +430,10 @@ body{
 #slotView .controls:after{display:none!important;}
 #slotView .push{
   position:absolute;
-  left:35.9%;
-  top:66.6%;
-  width:28.4%;
-  height:17.1%;
+  left:33.3%;
+  top:53.5%;
+  width:33.4%;
+  height:18.2%;
   transform:none;
   z-index:14;
   border-radius:50%;
@@ -472,8 +490,10 @@ body{
 }
 .nav button:before{display:none!important;}
 #navHome{grid-column:1;}
-#navSlot{grid-column:3;}
 #navTickets{grid-column:2;}
+#navPrizes{grid-column:3;}
+#navRules{grid-column:4;}
+#navSettings{grid-column:5;}
 #homeView.active,#ticketsView.active,.line-gate{
   position:relative;
   z-index:40;
@@ -611,6 +631,21 @@ body{
   background:transparent;
   color:transparent;
   cursor:pointer;
+  display:none;
+}
+.top-ticket-hit{
+  position:fixed;
+  left:calc((100vw - min(573px,100vw)) / 2 + 10px);
+  top:12px;
+  width:112px;
+  height:34px;
+  z-index:125;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:transparent;
+  cursor:pointer;
+  display:none;
 }
 .pin-modal{
   display:none;
@@ -733,6 +768,37 @@ body{
   object-fit:fill;
   object-position:center;
 }
+#slotView .led-ticker{
+  position:absolute;
+  left:31.5%;
+  top:20.9%;
+  width:37.2%;
+  height:2.35%;
+  z-index:9;
+  overflow:hidden;
+  border-radius:999px;
+  pointer-events:none;
+  color:#ffd84d;
+  font-weight:1000;
+  font-size:clamp(9px,2.4vw,14px);
+  line-height:1;
+  letter-spacing:.08em;
+  text-shadow:0 0 5px #ff9f1a,0 0 10px rgba(255,65,180,.75),0 0 14px rgba(255,211,106,.6);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+#slotView .led-ticker span{
+  position:absolute;
+  top:44%;
+  left:100%;
+  white-space:nowrap;
+  transform:translateY(-50%);
+  animation:ledTicker 6.2s linear infinite;
+}
+@keyframes ledTicker{
+  from{left:100%}
+  to{left:-72%}
+}
 .nav{
   position:fixed !important;
   left:50% !important;
@@ -756,6 +822,12 @@ body{
   width:calc(min(464px,100vw) * .20) !important;
   height:calc(min(464px,100vw) * 1694 / 928 * .045) !important;
 }
+.top-ticket-hit{
+  left:calc((100vw - min(464px,100vw)) / 2 + min(464px,100vw) * .025) !important;
+  top:calc(min(464px,100vw) * 1694 / 928 * .020) !important;
+  width:calc(min(464px,100vw) * .23) !important;
+  height:calc(min(464px,100vw) * 1694 / 928 * .045) !important;
+}
 </style>
 </head>
 <body>
@@ -768,9 +840,11 @@ body{
   <section class="machine" id="machine">
     <div class="inner" id="inner">
       <div class="nav">
-        <button id="navHome" class="active">HOME</button>
-        <button id="navSlot">SLOT</button>
-        <button id="navTickets">TICKET</button>
+        <button id="navHome" class="active" aria-label="ホーム">HOME</button>
+        <button id="navTickets" aria-label="マイチケット">TICKET</button>
+        <button id="navPrizes" aria-label="景品一覧">PRIZES</button>
+        <button id="navRules" aria-label="ルール・注意事項">RULES</button>
+        <button id="navSettings" aria-label="設定">SETTINGS</button>
       </div>
 
       <div class="demo-toggle" id="demoToggle">🧪 DEMO</div>
@@ -823,6 +897,7 @@ body{
           <source srcset="LASPA-PREMIUM-SLOT/assets/laspa-premium-slot-official-frame.webp" type="image/webp">
           <img class="laspa-reference-frame" src="LASPA-PREMIUM-SLOT/assets/laspa-premium-slot-official-frame.png" alt="LASPA PREMIUM SLOT 完成UIフレーム" decoding="async" fetchpriority="high">
         </picture>
+        <div class="led-ticker" aria-label="イベント告知"><span>夏のイベント開催中</span></div>
         <div class="screen">
           <div class="status" id="status">PUSH TO START</div>
           <div class="canvas-wrap">
@@ -857,8 +932,38 @@ body{
         <div class="panel">
           <h2>My Tickets</h2>
           <p>スタッフ確認後、お客様自身で「使用する」を押してください。</p>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
           <div id="ticketsList"></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
           <div class="warn">スクリーンショットではご利用いただけません。必ず店頭QRから開いた画面をご提示ください。</div>
+        </div>
+      </div>
+
+      <div class="view" id="prizesView">
+        <div class="panel">
+          <h2>景品一覧</h2>
+          <p>今回の抽選で当たる景品です。</p>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="prize-list" id="prizeList"></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="warn">景品内容は店頭運用時の設定に従います。</div>
+        </div>
+      </div>
+
+      <div class="view" id="rulesView">
+        <div class="panel">
+          <h2>ルール・注意事項</h2>
+          <p>ご利用前に以下をご確認ください。</p>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="rules-list">
+            <div>同じスマホでは1日1回まで抽選できます。</div>
+            <div>抽選回数は毎日00:00にリセットされます。</div>
+            <div>当選チケットはマイチケット画面に保存されます。</div>
+            <div>未使用チケットがある場合、使用後に次回抽選できます。</div>
+            <div>チケットはスタッフ確認後、お客様自身で「使用する」を押してください。</div>
+            <div>スクリーンショットではご利用いただけません。必ず店頭QRから開いた画面をご提示ください。</div>
+          </div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
         </div>
       </div>
 
@@ -869,6 +974,7 @@ body{
 
 
 <button class="menu-pin-hit" id="menuPinHit" aria-label="メニュー"></button>
+<button class="top-ticket-hit" id="topTicketHit" aria-label="マイチケット"></button>
 <div class="pin-modal" id="pinModal" aria-hidden="true">
   <div class="pin-card" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
     <h2 id="pinTitle">管理メニュー</h2>
@@ -1089,10 +1195,13 @@ function setView(name){
  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
  document.getElementById(name+"View").classList.add("active");
  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+ document.getElementById("topTicketHit").style.display=name==="slot"?"block":"none";
+ document.getElementById("menuPinHit").style.display=name==="slot"?"block":"none";
  const nav=document.getElementById("nav"+name.charAt(0).toUpperCase()+name.slice(1));
  if(nav)nav.classList.add("active");
  if(name==="home")renderHome();
  if(name==="tickets")renderTickets();
+ if(name==="prizes")renderPrizes();
  if(name==="slot"){updateSpinState();requestRender();}
 }
 function renderHome(){
@@ -1104,7 +1213,7 @@ function renderHome(){
  else{hs.textContent="本日の抽選に参加できます。PUSHで運試し！"}
 }
 function updateSpinState(){
- if(hasUnusedTicket()){spinBtn.disabled=true;spinBtn.textContent="チケット使用後に抽選可能";statusEl.textContent="未使用チケットがあります"}
+ if(hasUnusedTicket()){spinBtn.disabled=true;spinBtn.textContent="未使用チケットあり";statusEl.textContent="未使用チケットがあります"}
  else if(alreadyDrawn()){spinBtn.disabled=true;spinBtn.textContent="本日は抽選済み";statusEl.textContent="本日の抽選は利用済み"}
  else{spinBtn.disabled=false;spinBtn.textContent="🔴 PUSH";statusEl.textContent="PUSH TO START"}
 }
@@ -1136,6 +1245,11 @@ function renderTickets(){
   </div>`
  }).join("");
  list.querySelectorAll("[data-use]").forEach(b=>b.addEventListener("click",()=>openUseModal(b.dataset.use)))
+}
+function renderPrizes(){
+ const list=document.getElementById("prizeList");
+ if(!list)return;
+ list.innerHTML=prizes.map(p=>`<div class="prize-row"><strong>${p.rank}</strong>${p.name}<br><span>当選確率 ${p.rate}%</span></div>`).join("");
 }
 function openUseModal(id){
  selectedTicketId=id;
@@ -1527,10 +1641,15 @@ function premiumShow(title,sub){
 
 /* Events */
 document.getElementById("navHome").addEventListener("click",()=>setView("home"));
-document.getElementById("navSlot").addEventListener("click",()=>setView("slot"));
 document.getElementById("navTickets").addEventListener("click",()=>setView("tickets"));
+document.getElementById("navPrizes").addEventListener("click",()=>setView("prizes"));
+document.getElementById("navRules").addEventListener("click",()=>setView("rules"));
+document.getElementById("navSettings").addEventListener("click",()=>window.openAdminPin&&window.openAdminPin());
 document.getElementById("homeToSlot").addEventListener("click",()=>setView("slot"));
 document.getElementById("homeToTickets").addEventListener("click",()=>setView("tickets"));
+document.addEventListener("click",e=>{
+ if(e.target.closest("[data-back-slot]"))setView("slot");
+});
 spinBtn.addEventListener("click",()=>startSpin());
 
 document.getElementById("confirmUse").addEventListener("click",()=>{
@@ -1542,9 +1661,14 @@ document.getElementById("useModal").addEventListener("click",(e)=>{if(e.target.i
 document.getElementById("demoToggle").addEventListener("click",()=>document.getElementById("demoPanel").classList.toggle("show"));
 document.querySelectorAll("[data-demo]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("demoPanel").classList.remove("show");setView("slot");startSpin(btn.dataset.demo,true)}));
 document.getElementById("resetToday").addEventListener("click",()=>{
- if(!confirm("デモ確認用に全データをリセットしますか？"))return;
- Object.values(CONFIG.storage).forEach(k=>localStorage.removeItem(k));
- location.reload();
+ if(!confirm("デモ確認用に抽選状態とチケットをリセットしますか？"))return;
+ [CONFIG.storage.draw,CONFIG.storage.last,CONFIG.storage.tickets].forEach(k=>localStorage.removeItem(k));
+ localStorage.setItem(CONFIG.storage.line,"true");
+ ticket.classList.remove("show");
+ document.getElementById("demoPanel").classList.remove("show");
+ setView("slot");
+ updateSpinState();
+ requestRender();
 });
 
 /* LINE gate */
@@ -1587,6 +1711,7 @@ updateSpinState();
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden','true');
   }
+  window.openAdminPin=openPin;
   function unlock(){
     if(input.value==='3939'){
       closePin();
@@ -1597,6 +1722,7 @@ updateSpinState();
     input.select();
   }
   hit.addEventListener('click',openPin);
+  document.getElementById('topTicketHit').addEventListener('click',()=>setView('tickets'));
   submit.addEventListener('click',unlock);
   cancel.addEventListener('click',closePin);
   modal.addEventListener('click',e=>{if(e.target===modal)closePin();});
