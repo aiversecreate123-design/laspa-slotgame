@@ -940,6 +940,8 @@ const reelSymbolSources={
 };
 const reelSymbolImages={};
 const reelSymbolCrops={};
+const reelPreparedSymbols={};
+const reelFitMap={sauna:205,yomogi:186,discount500:204,discount300:204,discount100:204,pack:184,juice:184};
 function getReelSymbolCrop(img){
  if(reelSymbolCrops[img.src])return reelSymbolCrops[img.src];
  try{
@@ -969,6 +971,22 @@ function getReelSymbolCrop(img){
  }catch(e){
   return {x:0,y:0,w:img.naturalWidth,h:img.naturalHeight};
  }
+}
+function getPreparedReelSymbol(key){
+ const cached=reelPreparedSymbols[key];
+ if(cached)return cached;
+ const img=reelSymbolImages[key];
+ if(!img||!img.complete||!img.naturalWidth)return null;
+ const crop=getReelSymbolCrop(img);
+ const fit=reelFitMap[key]||154;
+ const ratio=Math.min(fit/crop.w,fit/crop.h);
+ const w=Math.max(1,Math.ceil(crop.w*ratio));
+ const h=Math.max(1,Math.ceil(crop.h*ratio));
+ const prepared=document.createElement("canvas");
+ prepared.width=w;prepared.height=h;
+ prepared.getContext("2d").drawImage(img,crop.x,crop.y,crop.w,crop.h,0,0,w,h);
+ reelPreparedSymbols[key]={canvas:prepared,w,h};
+ return reelPreparedSymbols[key];
 }
 for(const [key,src] of Object.entries(reelSymbolSources)){
  const img=new Image();
@@ -1100,32 +1118,30 @@ function closeUseModal(){selectedTicketId=null;document.getElementById("useModal
 /* 景品連動Canvas図柄：画像は使わずコードで描画
    Ver12.2：ダサい手描き絵を廃止し、スロット向け高級シンボルに統一
 */
-function drawPrizeSymbol(ctx, symbol, boost=1){
+function drawPrizeSymbol(ctx, symbol, boost=1, fast=false){
  const key=symbol.key;
- const reelImage=reelSymbolImages[key];
- if(reelImage&&reelImage.complete&&reelImage.naturalWidth>0){
+ const prepared=getPreparedReelSymbol(key);
+ if(prepared){
   ctx.save();
-  const crop=getReelSymbolCrop(reelImage);
-  const fitMap={sauna:205,yomogi:186,discount500:204,discount300:204,discount100:204,pack:184,juice:184};
-  const fit=fitMap[key]||154;
-  const ratio=Math.min(fit/crop.w,fit/crop.h);
-  const w=crop.w*ratio;
-  const h=crop.h*ratio;
-  ctx.globalAlpha=.62+boost*.28;
-  ctx.shadowColor="rgba(0,0,0,.30)";
-  ctx.shadowBlur=6+boost*10;
-  ctx.drawImage(reelImage,crop.x,crop.y,crop.w,crop.h,-w/2,-h/2,w,h);
+  ctx.globalAlpha=(fast?.68:.62)+boost*(fast?.18:.28);
+  if(!fast){
+   ctx.shadowColor="rgba(0,0,0,.30)";
+   ctx.shadowBlur=6+boost*10;
+  }
+  ctx.drawImage(prepared.canvas,-prepared.w/2,-prepared.h/2,prepared.w,prepared.h);
   ctx.shadowBlur=0;
-  ctx.globalCompositeOperation="screen";
-  ctx.globalAlpha=boost*.12;
-  const shine=ctx.createRadialGradient(-18,-24,10,0,0,82);
-  shine.addColorStop(0,"rgba(255,255,255,.75)");
-  shine.addColorStop(.5,"rgba(255,218,120,.20)");
-  shine.addColorStop(1,"rgba(255,255,255,0)");
-  ctx.fillStyle=shine;
-  ctx.beginPath();
-  ctx.ellipse(0,0,78,66,0,0,Math.PI*2);
-  ctx.fill();
+  if(!fast){
+   ctx.globalCompositeOperation="screen";
+   ctx.globalAlpha=boost*.12;
+   const shine=ctx.createRadialGradient(-18,-24,10,0,0,82);
+   shine.addColorStop(0,"rgba(255,255,255,.75)");
+   shine.addColorStop(.5,"rgba(255,218,120,.20)");
+   shine.addColorStop(1,"rgba(255,255,255,0)");
+   ctx.fillStyle=shine;
+   ctx.beginPath();
+   ctx.ellipse(0,0,78,66,0,0,Math.PI*2);
+   ctx.fill();
+  }
   ctx.restore();
   return;
  }
@@ -1290,10 +1306,12 @@ class Reel{
   const scroll=((-this.offset%cycle)+cycle)%cycle;
 
   // B方式: リール面はフレーム画像側に持たせ、Canvasは景品PNGだけを回す。
-  const yBase=-scroll;
-  for(let loop=-1;loop<5;loop++){
-    for(let j=0;j<symbols.length;j++){
-      const y=VIEW_Y+yBase+(loop*symbols.length+j)*CELL;
+  const fastSymbol=this.state==="spin"||this.state==="stop";
+  const first=Math.floor((scroll-CELL)/CELL);
+  const last=Math.ceil((scroll+VIEW_H+CELL)/CELL);
+  for(let n=first;n<=last;n++){
+      const j=((n%symbols.length)+symbols.length)%symbols.length;
+      const y=VIEW_Y-scroll+n*CELL;
       if(y<-CELL||y>VIEW_Y+VIEW_H+CELL)continue;
       const cy=y+CELL/2;
       const dist=Math.abs(cy-CENTER_Y);
@@ -1306,13 +1324,13 @@ class Reel{
       ctx.globalAlpha=alpha;
       ctx.translate(reelX+REEL_W/2,cy);
       ctx.scale(scale,ySquash*scale);
-      if(this.state==="spin")ctx.filter="blur(.35px)";
-      ctx.shadowColor="rgba(45,25,7,.42)";
-      ctx.shadowBlur=10+centerBoost*8;
-      ctx.shadowOffsetY=7;
-      drawPrizeSymbol(ctx,symbols[j],centerBoost);
+      if(!fastSymbol){
+        ctx.shadowColor="rgba(45,25,7,.42)";
+        ctx.shadowBlur=10+centerBoost*8;
+        ctx.shadowOffsetY=7;
+      }
+      drawPrizeSymbol(ctx,symbols[j],centerBoost,fastSymbol);
       ctx.restore();
-    }
   }
 
   const depth=ctx.createLinearGradient(0,VIEW_Y,0,VIEW_Y+VIEW_H);
