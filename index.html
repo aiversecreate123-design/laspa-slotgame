@@ -891,8 +891,14 @@ const CONFIG={
 
 const canvas=document.getElementById("slotCanvas");
 const ctx=canvas.getContext("2d");
-const W=canvas.width,H=canvas.height;
 const isMobilePerformance=matchMedia("(max-width: 520px), (pointer: coarse)").matches;
+const W=1180,H=520;
+const canvasRenderScale=isMobilePerformance ? .82 : 1;
+if(canvasRenderScale<1){
+ canvas.width=Math.round(W*canvasRenderScale);
+ canvas.height=Math.round(H*canvasRenderScale);
+ ctx.setTransform(canvasRenderScale,0,0,canvasRenderScale,0,0);
+}
 const REEL_W=340, GAP=35, START_X=70;
 const VIEW_H=420, VIEW_Y=52;
 const CELL=168;
@@ -1296,7 +1302,9 @@ class Reel{
       const cycle = symbols.length * CELL;
       const centerAdjust = (CENTER_Y - VIEW_Y - CELL / 2);
       this.offset = ((centerAdjust - this.finalIdx * CELL) % cycle + cycle) % cycle;
-      this.state="stopped";this.flash=1;this.glow=1;soundStop(this.i);vibrate([40,30,80]);
+      this.state="stopped";this.flash=1;this.glow=1;
+      if(isMobilePerformance)setTimeout(()=>soundStop(this.i),0);else soundStop(this.i);
+      vibrate([40,30,80]);
       return "stopped";
     }
   }
@@ -1392,7 +1400,8 @@ function roundRect(x,y,w,h,r){
  ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
 const reels=[new Reel(0),new Reel(1),new Reel(2)];
-let last=performance.now(), spinning=false, stopCount=0, resultPrize=null, demoMode=false, frameRunning=false;
+let last=performance.now(), spinning=false, stopCount=0, resultPrize=null, demoMode=false, frameRunning=false, finishQueued=false;
+const mobileFrameInterval=isMobilePerformance?1000/48:0;
 
 function hasActiveReelMotion(){
  return spinning || reels.some(r=>r.state==="delay"||r.state==="spin"||r.state==="stop"||r.flash>0||r.glow>0);
@@ -1405,6 +1414,10 @@ function requestRender(){
 }
 
 function drawFrame(now){
+ if(mobileFrameInterval && now-last<mobileFrameInterval){
+  requestAnimationFrame(drawFrame);
+  return;
+ }
  const dt=Math.min(now-last,34);last=now;
  ctx.clearRect(0,0,W,H);
 
@@ -1420,7 +1433,10 @@ function drawFrame(now){
         setTimeout(()=>{chance.classList.remove("show");inner.classList.remove("flash")},980);
       }
     }
-    if(stopCount===3)finishSpin();
+    if(stopCount===3&&!finishQueued){
+      finishQueued=true;
+      setTimeout(()=>finishSpin(),isMobilePerformance?90:0);
+    }
   }
   r.draw();
  }
@@ -1444,7 +1460,7 @@ async function startSpin(forcedRank=null,isDemo=false){
  if(spinning)return;
  if(!isDemo && !canSpin()){updateSpinState();return}
  ticket.classList.remove("show");
- spinBtn.disabled=true;spinning=true;stopCount=0;demoMode=isDemo;
+ spinBtn.disabled=true;spinning=true;stopCount=0;demoMode=isDemo;finishQueued=false;
  resultPrize=forcedRank?getPrizeByRank(forcedRank):pickPrize();
  const idx=symbolIndex(resultPrize);
  statusEl.textContent="全リール始動！ ととのいを掴め！";
@@ -1456,6 +1472,7 @@ async function startSpin(forcedRank=null,isDemo=false){
  requestRender();
 }
 function finishSpin(){
+ finishQueued=false;
  statusEl.textContent=resultPrize.rank+" 確定！";
  document.documentElement.style.setProperty("--themeGlow", resultPrize.theme || "#ffd36a");
  reels.forEach(r=>{r.flash=1;r.glow=1.15});
