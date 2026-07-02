@@ -611,9 +611,15 @@ body{
 }
 .demo-panel{
   position:fixed !important;
-  right:10px !important;
-  top:48px !important;
-  z-index:130 !important;
+  left:50% !important;
+  top:50% !important;
+  right:auto !important;
+  transform:translate(-50%,-50%) !important;
+  z-index:320 !important;
+  width:min(320px,86vw) !important;
+  max-height:min(78vh,560px) !important;
+  overflow:auto !important;
+  padding:12px !important;
 }
 
 
@@ -926,10 +932,12 @@ body{
 }
 #slotView .status{
   position:absolute !important;
-  left:-3.2% !important;
-  top:112.0% !important;
-  width:32.0% !important;
-  height:12.5% !important;
+  left:-2.2% !important;
+  top:112.8% !important;
+  width:30.5% !important;
+  height:10.2% !important;
+  padding:4px 5px 2px !important;
+  border-radius:8px !important;
 }
 .menu-pin-hit{
   right:calc((100vw - var(--laspa-frame-w)) / 2 + var(--laspa-frame-w) * .03) !important;
@@ -948,11 +956,12 @@ body{
 @media(max-width:600px){
   #slotView .status{
     position:fixed !important;
-    left:calc(50vw - var(--laspa-frame-w) / 2 - var(--laspa-frame-w) * .018) !important;
-    top:calc(var(--laspa-frame-h) * .612) !important;
-    width:calc(var(--laspa-frame-w) * .330) !important;
-    height:calc(var(--laspa-frame-h) * .068) !important;
-    padding:5px 4px 2px !important;
+    left:calc(50vw - var(--laspa-frame-w) / 2 - var(--laspa-frame-w) * .025) !important;
+    top:calc(var(--laspa-frame-h) * .624) !important;
+    width:calc(var(--laspa-frame-w) * .360) !important;
+    height:calc(var(--laspa-frame-h) * .050) !important;
+    padding:3px 5px 1px !important;
+    border-radius:7px !important;
     font-size:clamp(8px,2.45vw,12px) !important;
     line-height:1.05 !important;
     z-index:214 !important;
