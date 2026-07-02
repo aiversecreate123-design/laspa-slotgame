@@ -411,7 +411,7 @@ body{
   justify-content:center;
   padding:12px 4px 4px;
   border:0;
-  background:linear-gradient(180deg,rgba(3,8,13,.97),rgba(0,0,0,.95));
+  background:transparent;
   color:#36fbff;
   font-size:clamp(8px,2.35vw,13px);
   line-height:1.18;
@@ -419,7 +419,16 @@ body{
 }
 #slotView .status:before{display:none!important;}
 #slotView .status:after{
-  display:none;
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:38%;
+  bottom:6%;
+  z-index:-1;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(3,8,13,.97),rgba(0,0,0,.95));
+  box-shadow:inset 0 0 12px rgba(0,0,0,.9),0 0 8px rgba(116,247,255,.10);
 }
 #slotView .controls{
   position:absolute;
@@ -955,13 +964,13 @@ body{
 }
 @media(max-width:600px){
   #slotView .status{
-    position:fixed !important;
-    left:calc(50vw - var(--laspa-frame-w) / 2 + var(--laspa-frame-w) * .010) !important;
-    top:calc(var(--laspa-frame-h) * .629) !important;
-    width:calc(var(--laspa-frame-w) * .305) !important;
-    height:calc(var(--laspa-frame-h) * .043) !important;
-    padding:2px 4px 1px !important;
-    border-radius:7px !important;
+    position:absolute !important;
+    left:-3.8% !important;
+    top:111.2% !important;
+    width:32.0% !important;
+    height:12.5% !important;
+    padding:15px 5px 2px !important;
+    border-radius:8px !important;
     font-size:clamp(7px,2.15vw,10px) !important;
     line-height:1.05 !important;
     z-index:214 !important;
