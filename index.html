@@ -35,6 +35,7 @@ body{
   100%{transform:translateY(-116vh) scale(1.85);opacity:0}
 }
 .app{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:12px}
+body:has(.result-modal.show) .app{z-index:240}
 .machine{
   width:min(440px,100%);border-radius:36px;padding:13px;position:relative;
   background:linear-gradient(145deg,#241205,#a96507 16%,#fff1aa 31%,#ffbb33 42%,#603005 62%,#110603 100%);
@@ -439,6 +440,9 @@ body{
   border-radius:50%;
   opacity:.01;
   color:transparent;
+  font-size:0;
+  line-height:0;
+  overflow:hidden;
   background:transparent;
   border:0;
   box-shadow:none;
@@ -865,6 +869,82 @@ body{
   top:calc(min(464px,100vw) * 1694 / 928 * .020) !important;
   width:calc(min(464px,100vw) * .23) !important;
   height:calc(min(464px,100vw) * 1694 / 928 * .045) !important;
+}
+
+/* Final touch-map lock: use the actual visible frame size on mobile and desktop. */
+:root{
+  --laspa-frame-w: min(464px, 100vw, calc(100svh * 928 / 1694));
+  --laspa-frame-h: calc(var(--laspa-frame-w) * 1694 / 928);
+}
+#slotView.active{
+  width:var(--laspa-frame-w) !important;
+  height:var(--laspa-frame-h) !important;
+  aspect-ratio:928/1694 !important;
+  position:relative !important;
+  margin:0 auto !important;
+  z-index:130 !important;
+}
+.nav{
+  position:fixed !important;
+  left:calc(50vw - var(--laspa-frame-w) / 2) !important;
+  top:calc(var(--laspa-frame-h) * .885) !important;
+  bottom:auto !important;
+  transform:none !important;
+  width:var(--laspa-frame-w) !important;
+  height:calc(var(--laspa-frame-h) * .108) !important;
+  max-width:none !important;
+  max-height:none !important;
+  z-index:210 !important;
+}
+.nav button{
+  min-width:0 !important;
+  width:auto !important;
+  height:100% !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+#slotView .led-ticker{
+  top:20.7% !important;
+  height:2.55% !important;
+  display:flex !important;
+  align-items:center !important;
+}
+#slotView .led-ticker span{
+  top:50% !important;
+  line-height:1 !important;
+  transform:translateY(-50%) !important;
+}
+.result-modal{
+  position:fixed !important;
+  left:calc(50vw - var(--laspa-frame-w) / 2) !important;
+  top:0 !important;
+  width:var(--laspa-frame-w) !important;
+  height:var(--laspa-frame-h) !important;
+  inset:auto !important;
+  z-index:260 !important;
+}
+.result-card{
+  max-width:calc(var(--laspa-frame-w) * .78) !important;
+}
+#slotView .status{
+  left:calc(50vw - var(--laspa-frame-w) / 2 + var(--laspa-frame-w) * .043) !important;
+  top:calc(var(--laspa-frame-h) * .632) !important;
+  width:calc(var(--laspa-frame-w) * .255) !important;
+  height:calc(var(--laspa-frame-h) * .039) !important;
+}
+.menu-pin-hit{
+  right:calc((100vw - var(--laspa-frame-w)) / 2 + var(--laspa-frame-w) * .03) !important;
+  top:calc(var(--laspa-frame-h) * .020) !important;
+  width:calc(var(--laspa-frame-w) * .20) !important;
+  height:calc(var(--laspa-frame-h) * .045) !important;
+  z-index:215 !important;
+}
+.top-ticket-hit{
+  left:calc((100vw - var(--laspa-frame-w)) / 2 + var(--laspa-frame-w) * .025) !important;
+  top:calc(var(--laspa-frame-h) * .020) !important;
+  width:calc(var(--laspa-frame-w) * .23) !important;
+  height:calc(var(--laspa-frame-h) * .045) !important;
+  z-index:215 !important;
 }
 </style>
 </head>
