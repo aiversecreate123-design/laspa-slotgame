@@ -409,15 +409,18 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:16px 6px 4px;
+  padding:12px 4px 4px;
   border:0;
-  background:transparent;
+  background:linear-gradient(180deg,rgba(3,8,13,.97),rgba(0,0,0,.95));
   color:#36fbff;
-  font-size:clamp(10px,2.7vw,14px);
+  font-size:clamp(8px,2.35vw,13px);
   line-height:1.18;
   text-shadow:0 0 10px rgba(0,229,255,.95),0 0 18px rgba(0,229,255,.55);
 }
 #slotView .status:before{display:none!important;}
+#slotView .status:after{
+  display:none;
+}
 #slotView .controls{
   position:absolute;
   inset:0;
@@ -456,12 +459,7 @@ body{
   display:none;
 }
 #slotView .ticket{
-  position:absolute;
-  left:5%;
-  right:5%;
-  bottom:13%;
-  z-index:30;
-  margin:0;
+  display:none!important;
 }
 #slotView .chance{
   border-radius:3.8%;
@@ -927,10 +925,11 @@ body{
   max-width:calc(var(--laspa-frame-w) * .78) !important;
 }
 #slotView .status{
-  left:calc(50vw - var(--laspa-frame-w) / 2 + var(--laspa-frame-w) * .043) !important;
-  top:calc(var(--laspa-frame-h) * .632) !important;
-  width:calc(var(--laspa-frame-w) * .255) !important;
-  height:calc(var(--laspa-frame-h) * .039) !important;
+  position:absolute !important;
+  left:-3.2% !important;
+  top:112.0% !important;
+  width:32.0% !important;
+  height:12.5% !important;
 }
 .menu-pin-hit{
   right:calc((100vw - var(--laspa-frame-w)) / 2 + var(--laspa-frame-w) * .03) !important;
@@ -1346,8 +1345,8 @@ function renderHome(){
  else{hs.textContent="本日の抽選に参加できます。PUSHで運試し！"}
 }
 function updateSpinState(){
- if(hasUnusedTicket()){spinBtn.disabled=true;spinBtn.textContent="未使用チケットあり";statusEl.textContent="未使用チケットがあります"}
- else if(alreadyDrawn()){spinBtn.disabled=true;spinBtn.textContent="本日は抽選済み";statusEl.textContent="本日の抽選は利用済み"}
+ if(hasUnusedTicket()){spinBtn.disabled=true;spinBtn.textContent="未使用チケットあり";statusEl.textContent="未使用チケット有り"}
+ else if(alreadyDrawn()){spinBtn.disabled=true;spinBtn.textContent="本日は抽選済み";statusEl.textContent="PUSH TO START"}
  else{spinBtn.disabled=false;spinBtn.textContent="🔴 PUSH";statusEl.textContent="PUSH TO START"}
 }
 function showTicket(record){
@@ -1690,9 +1689,9 @@ function drawFrame(now){
   const ev=r.update(now,dt);
   if(ev==="stopped"){
     stopCount++;
-    if(stopCount===1)statusEl.textContent="1st STOP… 図柄点灯！";
+    if(stopCount===1)statusEl.textContent="抽選中";
     if(stopCount===2){
-      statusEl.textContent="2nd STOP… ラストに注目";
+      statusEl.textContent="抽選中";
       if(resultPrize && (resultPrize.rank.includes("超")||resultPrize.rank.includes("激")||resultPrize.rank.includes("500"))){
         chance.classList.add("show");inner.classList.add("flash");beep(1200,.18,"square",.045);vibrate([80,60,130]);
         setTimeout(()=>{chance.classList.remove("show");inner.classList.remove("flash")},980);
@@ -1729,7 +1728,7 @@ async function startSpin(forcedRank=null,isDemo=false){
  spinBtn.disabled=true;spinning=true;stopCount=0;demoMode=isDemo;finishQueued=false;
  resultPrize=forcedRank?getPrizeByRank(forcedRank):pickPrize();
  const idx=symbolIndex(resultPrize);
- statusEl.textContent="全リール始動！ ととのいを掴め！";
+ statusEl.textContent="抽選中";
  soundStart();vibrate(80);
  await wait(280);
  reels[0].start(idx,0,1150,1350);
@@ -1739,7 +1738,7 @@ async function startSpin(forcedRank=null,isDemo=false){
 }
 function finishSpin(){
  finishQueued=false;
- statusEl.textContent=resultPrize.rank+" 確定！";
+ statusEl.textContent="未使用チケット有り";
  document.documentElement.style.setProperty("--themeGlow", resultPrize.theme || "#ffd36a");
  reels.forEach(r=>{r.flash=1;r.glow=1.15});
  const record=createTicketFromPrize(resultPrize,demoMode);
@@ -1758,7 +1757,7 @@ function finishSpin(){
   confetti(75);soundWin();vibrate(120);
  }
  spinning=false;
- if(demoMode){spinBtn.disabled=false;spinBtn.textContent="🔴 PUSH";statusEl.textContent="DEMO結果：もう一度確認できます"}
+ if(demoMode){spinBtn.disabled=false;spinBtn.textContent="🔴 PUSH";statusEl.textContent="PUSH TO START"}
  else{spinBtn.textContent="本日は抽選済み"}
  renderHome();
 }
