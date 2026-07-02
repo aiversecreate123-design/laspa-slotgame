@@ -789,7 +789,7 @@ body{
 }
 #slotView .led-ticker span{
   position:absolute;
-  top:44%;
+  top:50%;
   left:100%;
   white-space:nowrap;
   transform:translateY(-50%);
@@ -799,22 +799,60 @@ body{
   from{left:100%}
   to{left:-72%}
 }
+.result-modal{
+  display:none;
+  position:absolute;
+  inset:0;
+  z-index:80;
+  align-items:center;
+  justify-content:center;
+  padding:8%;
+  background:rgba(0,0,0,.42);
+}
+.result-modal.show{display:flex}
+.result-card{
+  width:100%;
+  border:2px solid rgba(255,211,106,.88);
+  border-radius:22px;
+  padding:18px 16px;
+  text-align:center;
+  background:linear-gradient(180deg,rgba(18,13,22,.96),rgba(3,4,10,.98));
+  box-shadow:0 0 28px rgba(255,211,106,.42),0 24px 80px rgba(0,0,0,.82);
+}
+.result-label{font-size:13px;color:#9dfcff;font-weight:1000;letter-spacing:.16em}
+.result-rank{margin-top:7px;color:#fff4b2;font-size:clamp(22px,7vw,32px);font-weight:1000;text-shadow:0 0 16px rgba(255,211,106,.75)}
+.result-prize{margin-top:7px;color:#fff;font-size:clamp(18px,5.5vw,25px);font-weight:1000;line-height:1.28}
+.result-note{margin-top:9px;color:#d9f7ff;font-size:12px;line-height:1.55}
+.result-actions{display:grid;gap:9px;margin-top:14px}
+.result-actions button{
+  border:0;
+  border-radius:15px;
+  padding:13px 10px;
+  font-weight:1000;
+  font-size:14px;
+}
+#resultTickets{background:linear-gradient(90deg,#74f7ff,#fff1aa,#ff9f1a);color:#120700}
+#resultClose{background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.18)}
 .nav{
   position:fixed !important;
   left:50% !important;
-  top:calc(min(464px,100vw) * 1694 / 928 * .922) !important;
+  top:calc(min(464px,100vw) * 1694 / 928 * .885) !important;
   bottom:auto !important;
   transform:translateX(-50%) !important;
   width:min(464px,100vw) !important;
   max-width:464px !important;
-  height:calc(min(464px,100vw) * 1694 / 928 * .078) !important;
-  max-height:66px !important;
+  height:calc(min(464px,100vw) * 1694 / 928 * .115) !important;
+  max-height:94px !important;
 }
 #slotView .status{
-  left:calc(50vw - min(464px,100vw) / 2 + min(464px,100vw) * .035) !important;
-  top:calc(min(464px,100vw) * 1694 / 928 * .620) !important;
-  width:calc(min(464px,100vw) * .285) !important;
-  height:calc(min(464px,100vw) * 1694 / 928 * .048) !important;
+  left:calc(50vw - min(464px,100vw) / 2 + min(464px,100vw) * .043) !important;
+  top:calc(min(464px,100vw) * 1694 / 928 * .632) !important;
+  width:calc(min(464px,100vw) * .255) !important;
+  height:calc(min(464px,100vw) * 1694 / 928 * .039) !important;
+  padding:0 5px !important;
+  font-size:clamp(8px,2.15vw,11px) !important;
+  line-height:1.05 !important;
+  align-items:center !important;
 }
 .menu-pin-hit{
   right:calc((100vw - min(464px,100vw)) / 2 + min(464px,100vw) * .03) !important;
@@ -924,6 +962,18 @@ body{
             <div class="meta" id="meta"></div>
             <div class="code" id="code"></div>
             <div class="badge next" id="badge">マイチケット保存済み</div>
+          </div>
+        </div>
+        <div class="result-modal" id="resultModal" aria-hidden="true">
+          <div class="result-card">
+            <div class="result-label">当選結果</div>
+            <div class="result-rank" id="resultRank"></div>
+            <div class="result-prize" id="resultPrize"></div>
+            <div class="result-note">マイチケットに保存しました。店頭でスタッフへご提示ください。</div>
+            <div class="result-actions">
+              <button id="resultTickets" type="button">マイチケットを見る</button>
+              <button id="resultClose" type="button">閉じる</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1036,6 +1086,9 @@ const codeEl=document.getElementById("code");
 const badgeEl=document.getElementById("badge");
 const chance=document.getElementById("chance");
 const inner=document.getElementById("inner");
+const resultModal=document.getElementById("resultModal");
+const resultRankEl=document.getElementById("resultRank");
+const resultPrizeEl=document.getElementById("resultPrize");
 
 const todayKey=()=>new Date().toLocaleDateString("ja-JP",{timeZone:"Asia/Tokyo"});
 const nowText=()=>new Date().toLocaleString("ja-JP",{timeZone:"Asia/Tokyo",hour12:false});
@@ -1591,6 +1644,7 @@ requestRender();
 async function startSpin(forcedRank=null,isDemo=false){
  if(spinning)return;
  if(!isDemo && !canSpin()){updateSpinState();return}
+ closeResultPanel();
  ticket.classList.remove("show");
  spinBtn.disabled=true;spinning=true;stopCount=0;demoMode=isDemo;finishQueued=false;
  resultPrize=forcedRank?getPrizeByRank(forcedRank):pickPrize();
@@ -1610,6 +1664,7 @@ function finishSpin(){
  reels.forEach(r=>{r.flash=1;r.glow=1.15});
  const record=createTicketFromPrize(resultPrize,demoMode);
  showTicket(record);
+ showResultPanel(record);
  if(resultPrize.rank.includes("超")){
   premiumShow("CONGRATULATIONS","サウナ90分無料チケット");
   confetti(170);soundPremium();vibrate([140,80,140,80,300]);inner.classList.add("flash");setTimeout(()=>inner.classList.remove("flash"),1500);
@@ -1626,6 +1681,16 @@ function finishSpin(){
  if(demoMode){spinBtn.disabled=false;spinBtn.textContent="🔴 PUSH";statusEl.textContent="DEMO結果：もう一度確認できます"}
  else{spinBtn.textContent="本日は抽選済み"}
  renderHome();
+}
+function showResultPanel(record){
+ resultRankEl.textContent=record.rank;
+ resultPrizeEl.textContent=record.prize;
+ resultModal.classList.add("show");
+ resultModal.setAttribute("aria-hidden","false");
+}
+function closeResultPanel(){
+ resultModal.classList.remove("show");
+ resultModal.setAttribute("aria-hidden","true");
 }
 
 /* Effect */
@@ -1651,6 +1716,9 @@ document.addEventListener("click",e=>{
  if(e.target.closest("[data-back-slot]"))setView("slot");
 });
 spinBtn.addEventListener("click",()=>startSpin());
+document.getElementById("resultTickets").addEventListener("click",()=>{closeResultPanel();setView("tickets")});
+document.getElementById("resultClose").addEventListener("click",closeResultPanel);
+resultModal.addEventListener("click",e=>{if(e.target===resultModal)closeResultPanel()});
 
 document.getElementById("confirmUse").addEventListener("click",()=>{
  if(selectedTicketId){useTicket(selectedTicketId);closeUseModal();renderTickets();renderHome();updateSpinState();premiumShow("USED","チケットを使用済みにしました");}
