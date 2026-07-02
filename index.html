@@ -945,6 +945,19 @@ body{
   height:calc(var(--laspa-frame-h) * .045) !important;
   z-index:215 !important;
 }
+@media(max-width:600px){
+  #slotView .status{
+    position:fixed !important;
+    left:calc(50vw - var(--laspa-frame-w) / 2 - var(--laspa-frame-w) * .018) !important;
+    top:calc(var(--laspa-frame-h) * .612) !important;
+    width:calc(var(--laspa-frame-w) * .330) !important;
+    height:calc(var(--laspa-frame-h) * .068) !important;
+    padding:5px 4px 2px !important;
+    font-size:clamp(8px,2.45vw,12px) !important;
+    line-height:1.05 !important;
+    z-index:214 !important;
+  }
+}
 </style>
 </head>
 <body>
