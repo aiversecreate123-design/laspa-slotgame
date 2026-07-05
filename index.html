@@ -1363,7 +1363,9 @@ function createTicketFromPrize(p,isDemo=false){
  return rec
 }
 let selectedTicketId=null;
+let staffUsePinApproved=false;
 function useTicket(id){
+ if(!staffUsePinApproved)return;
  const arr=normalizedTickets().map(t=>t.id===id&&t.status==="unused"?{...t,status:"used",usedAt:new Date().toISOString()}:t);
  saveTickets(arr)
 }
@@ -1453,7 +1455,7 @@ function confirmStaffUsePin(){
  const input=document.getElementById("staffUsePinInput");
  const error=document.getElementById("staffUsePinError");
  if(input.value===STAFF_PIN&&selectedTicketId){
-  useTicket(selectedTicketId);closeStaffUsePinModal(false);selectedTicketId=null;renderTickets();renderHome();updateSpinState();premiumShow("USED","チケットを使用済みにしました");
+  staffUsePinApproved=true;useTicket(selectedTicketId);staffUsePinApproved=false;closeStaffUsePinModal(false);selectedTicketId=null;renderTickets();renderHome();updateSpinState();premiumShow("USED","チケットを使用済みにしました");
  }else{
   error.textContent="PINが違います";
   input.value="";
