@@ -1,6 +1,5 @@
-﻿<!DOCTYPE html>
-<html lang="ja">
-<head>
+<!DOCTYPE html>
+<html lang="ja"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LASPA PREMIUM SLOT Ver12.2 Synced</title>
@@ -220,6 +219,9 @@ canvas{display:block;width:100%;height:auto}
 .modal-card button{width:100%;margin-top:9px;border:0;border-radius:15px;padding:13px;font-weight:1000}
 .modal-card .ok{background:linear-gradient(90deg,#ffd36a,#ff9f1a);color:#1c0900}
 .modal-card .cancel{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14)}
+.staff-pin-input{width:100%;margin-top:10px;border-radius:15px;padding:14px;border:1px solid rgba(255,211,106,.7);background:#03040b;color:#fff4b2;font-size:24px;font-weight:1000;text-align:center;letter-spacing:.28em;outline:none}
+.staff-pin-input:focus{box-shadow:0 0 0 2px rgba(255,211,106,.22),0 0 18px rgba(255,211,106,.24)}
+.staff-pin-error{min-height:20px;margin-top:8px;color:#ff8a8a;font-size:13px;font-weight:900;text-align:center}
 .line-gate{display:none}
 .warn{color:#ffefb0;font-size:11px;line-height:1.55;text-align:center;margin-top:10px}
 @media(max-width:370px){
@@ -980,7 +982,7 @@ body{
 </head>
 <body>
 <div class="bg"></div>
-<div class="steam" id="steam"></div>
+<div class="steam" id="steam"><span style="left: 39.3015vw; animation-delay: 1.60518s; animation-duration: 6.73299s;"></span><span style="left: 48.6251vw; animation-delay: 2.81714s; animation-duration: 8.78742s;"></span><span style="left: 70.6738vw; animation-delay: 1.92452s; animation-duration: 7.2901s;"></span><span style="left: 31.3746vw; animation-delay: 2.7904s; animation-duration: 6.0083s;"></span><span style="left: 38.3162vw; animation-delay: 5.41436s; animation-duration: 9.67215s;"></span><span style="left: 30.0466vw; animation-delay: 0.983805s; animation-duration: 9.98218s;"></span><span style="left: 84.8392vw; animation-delay: 5.82839s; animation-duration: 6.89788s;"></span><span style="left: 78.2292vw; animation-delay: 5.27206s; animation-duration: 8.18262s;"></span><span style="left: 47.6964vw; animation-delay: 3.73742s; animation-duration: 9.77729s;"></span><span style="left: 33.9471vw; animation-delay: 2.66199s; animation-duration: 6.12671s;"></span></div>
 <div class="confetti" id="confetti"></div>
 <div class="jackpot" id="jackpot"><div class="box"><h2 id="jackpotTitle">CONGRATULATIONS</h2><p id="jackpotSub">PREMIUM BONUS</p></div></div>
 
@@ -1016,7 +1018,7 @@ body{
         <div class="sub">LINE限定・本日1回チャレンジ</div>
       </div>
 
-      <div class="line-gate" id="lineGate">
+      <div class="line-gate" id="lineGate" style="display: block;">
         <div class="panel">
           <h2>LINE友達登録者限定</h2>
           <p>正式運用時はLINE登録確認と連携予定です。社長確認用のため、下のボタンから進めます。</p>
@@ -1027,7 +1029,7 @@ body{
         </div>
       </div>
 
-      <div class="view active" id="homeView">
+      <div class="view" id="homeView">
         <div class="panel">
           <h2>Today’s Chance</h2>
           <p>本日の抽選とマイチケットを確認できます。</p>
@@ -1092,9 +1094,9 @@ body{
         <div class="panel">
           <h2>My Tickets</h2>
           <p>スタッフ確認後、お客様自身で「使用する」を押してください。</p>
-          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot="">筐体へ戻る</button></div>
           <div id="ticketsList"></div>
-          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot="">筐体へ戻る</button></div>
           <div class="warn">スクリーンショットではご利用いただけません。必ず店頭QRから開いた画面をご提示ください。</div>
         </div>
       </div>
@@ -1103,9 +1105,9 @@ body{
         <div class="panel">
           <h2>景品一覧</h2>
           <p>今回の抽選で当たる景品です。</p>
-          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot="">筐体へ戻る</button></div>
           <div class="prize-list" id="prizeList"></div>
-          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot="">筐体へ戻る</button></div>
           <div class="warn">景品内容は店頭運用時の設定に従います。</div>
         </div>
       </div>
@@ -1114,7 +1116,7 @@ body{
         <div class="panel">
           <h2>ルール・注意事項</h2>
           <p>ご利用前に以下をご確認ください。</p>
-          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot="">筐体へ戻る</button></div>
           <div class="rules-list">
             <div>同じスマホでは1日1回まで抽選できます。</div>
             <div>抽選回数は毎日00:00にリセットされます。</div>
@@ -1123,7 +1125,7 @@ body{
             <div>チケットはスタッフ確認後、お客様自身で「使用する」を押してください。</div>
             <div>スクリーンショットではご利用いただけません。必ず店頭QRから開いた画面をご提示ください。</div>
           </div>
-          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot>筐体へ戻る</button></div>
+          <div class="main-actions back-to-slot"><button class="secondary" data-back-slot="">筐体へ戻る</button></div>
         </div>
       </div>
 
@@ -1157,6 +1159,17 @@ body{
   </div>
 </div>
 
+<div class="modal" id="staffUsePinModal">
+  <div class="modal-card">
+    <h2>STAFF PIN</h2>
+    <p>スタッフPINを入力してください。</p>
+    <input class="staff-pin-input" id="staffUsePinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="STAFF PIN">
+    <div class="staff-pin-error" id="staffUsePinError" aria-live="polite"></div>
+    <button class="ok" id="staffUsePinConfirm">認証</button>
+    <button class="cancel" id="staffUsePinCancel">キャンセル</button>
+  </div>
+</div>
+
 <script>
 /* ===============================
    LASPA SLOT PROJECT Ver12.2 Synced
@@ -1171,6 +1184,8 @@ const CONFIG={
     tickets:"laspaV12_tickets"
   }
 };
+
+const STAFF_PIN = "3939";
 
 const canvas=document.getElementById("slotCanvas");
 const ctx=canvas.getContext("2d");
@@ -1421,6 +1436,30 @@ function openUseModal(id){
  document.getElementById("useModal").classList.add("show")
 }
 function closeUseModal(){selectedTicketId=null;document.getElementById("useModal").classList.remove("show")}
+function openStaffUsePinModal(){
+ const input=document.getElementById("staffUsePinInput");
+ const error=document.getElementById("staffUsePinError");
+ input.value="";error.textContent="";
+ document.getElementById("staffUsePinModal").classList.add("show");
+ setTimeout(()=>input.focus(),80);
+}
+function closeStaffUsePinModal(clearSelection=true){
+ document.getElementById("staffUsePinModal").classList.remove("show");
+ document.getElementById("staffUsePinInput").value="";
+ document.getElementById("staffUsePinError").textContent="";
+ if(clearSelection)selectedTicketId=null;
+}
+function confirmStaffUsePin(){
+ const input=document.getElementById("staffUsePinInput");
+ const error=document.getElementById("staffUsePinError");
+ if(input.value===STAFF_PIN&&selectedTicketId){
+  useTicket(selectedTicketId);closeStaffUsePinModal(false);selectedTicketId=null;renderTickets();renderHome();updateSpinState();premiumShow("USED","チケットを使用済みにしました");
+ }else{
+  error.textContent="PINが違います";
+  input.value="";
+  input.focus();
+ }
+}
 
 
 
@@ -1831,10 +1870,15 @@ document.getElementById("resultClose").addEventListener("click",closeResultPanel
 resultModal.addEventListener("click",e=>{if(e.target===resultModal)closeResultPanel()});
 
 document.getElementById("confirmUse").addEventListener("click",()=>{
- if(selectedTicketId){useTicket(selectedTicketId);closeUseModal();renderTickets();renderHome();updateSpinState();premiumShow("USED","チケットを使用済みにしました");}
+ if(selectedTicketId){document.getElementById("useModal").classList.remove("show");openStaffUsePinModal();}
 });
 document.getElementById("cancelUse").addEventListener("click",closeUseModal);
 document.getElementById("useModal").addEventListener("click",(e)=>{if(e.target.id==="useModal")closeUseModal()});
+document.getElementById("staffUsePinConfirm").addEventListener("click",confirmStaffUsePin);
+document.getElementById("staffUsePinCancel").addEventListener("click",()=>closeStaffUsePinModal());
+document.getElementById("staffUsePinInput").addEventListener("input",(e)=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)});
+document.getElementById("staffUsePinInput").addEventListener("keydown",(e)=>{if(e.key==="Enter")confirmStaffUsePin(); if(e.key==="Escape")closeStaffUsePinModal();});
+document.getElementById("staffUsePinModal").addEventListener("click",(e)=>{if(e.target.id==="staffUsePinModal")closeStaffUsePinModal()});
 
 document.getElementById("demoToggle").addEventListener("click",()=>document.getElementById("demoPanel").classList.toggle("show"));
 document.querySelectorAll("[data-demo]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("demoPanel").classList.remove("show");setView("slot");startSpin(btn.dataset.demo,true)}));
@@ -1908,5 +1952,6 @@ updateSpinState();
 })();
 </script>
 
-</body>
-</html>
+
+
+</body><div id="codex-browser-sidebar-comments-root" style="position: fixed; inset: 0px; pointer-events: none; z-index: 2147483647;"></div></html>
