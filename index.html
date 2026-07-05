@@ -997,8 +997,8 @@ body{
 
       <div class="demo-toggle" id="demoToggle">🧪 DEMO</div>
       <div class="demo-panel" id="demoPanel">
-        <button data-demo="超ととのい賞">サウナ90分無料</button>
-        <button data-demo="激ととのい賞">よもぎ蒸し60分無料</button>
+        <button data-demo="超ととのい賞">サウナ90分半額</button>
+        <button data-demo="激ととのい賞">よもぎ蒸し60分半額</button>
         <button data-demo="500円賞">500円割引</button>
         <button data-demo="300円賞">300円割引</button>
         <button data-demo="100円賞">100円割引</button>
@@ -1210,8 +1210,8 @@ function vibrate(p){if(navigator.vibrate)navigator.vibrate(p)}
 
 /* 景品：社長確認用 Ver12確定名 */
 const prizes=[
- {rank:"超ととのい賞",name:"サウナ90分無料チケット",rate:1,type:"sauna",symbol:"sauna",theme:"#ffd36a"},
- {rank:"激ととのい賞",name:"よもぎ蒸し60分無料チケット",rate:2,type:"yomogi",symbol:"yomogi",theme:"#6cffb8"},
+ {rank:"超ととのい賞",name:"サウナ90分半額チケット",rate:1,type:"sauna",symbol:"sauna",theme:"#ffd36a"},
+ {rank:"激ととのい賞",name:"よもぎ蒸し60分半額チケット",rate:2,type:"yomogi",symbol:"yomogi",theme:"#6cffb8"},
  {rank:"500円賞",name:"500円割引チケット",rate:5,type:"discount",symbol:"discount500",theme:"#fff1aa"},
  {rank:"300円賞",name:"300円割引チケット",rate:12,type:"discount",symbol:"discount300",theme:"#ffd36a"},
  {rank:"100円賞",name:"100円割引チケット",rate:25,type:"discount",symbol:"discount100",theme:"#ffcc66"},
@@ -1220,8 +1220,8 @@ const prizes=[
 ];
 
 const symbols=[
- {key:"sauna", label:"サウナ90分無料チケット", color:"#ffd36a"},
- {key:"yomogi", label:"よもぎ蒸し60分無料チケット", color:"#6cffb8"},
+ {key:"sauna", label:"サウナ90分半額チケット", color:"#ffd36a"},
+ {key:"yomogi", label:"よもぎ蒸し60分半額チケット", color:"#6cffb8"},
  {key:"discount500", label:"500円割引チケット", color:"#fff1aa"},
  {key:"discount300", label:"300円割引チケット", color:"#ffd36a"},
  {key:"discount100", label:"100円割引チケット", color:"#ffcc66"},
@@ -1776,10 +1776,10 @@ function finishSpin(){
  showTicket(record);
  showResultPanel(record);
  if(resultPrize.rank.includes("超")){
-  premiumShow("CONGRATULATIONS","サウナ90分無料チケット");
+  premiumShow("CONGRATULATIONS","サウナ90分半額チケット");
   confetti(170);soundPremium();vibrate([140,80,140,80,300]);inner.classList.add("flash");setTimeout(()=>inner.classList.remove("flash"),1500);
  }else if(resultPrize.rank.includes("激")){
-  premiumShow("激ととのい!!","よもぎ蒸し60分無料チケット");
+  premiumShow("激ととのい!!","よもぎ蒸し60分半額チケット");
   confetti(125);soundPremium();vibrate([120,70,220]);inner.classList.add("flash");setTimeout(()=>inner.classList.remove("flash"),1300);
  }else if(resultPrize.rank.includes("500")){
   premiumShow("BIG BONUS","500円割引チケット");
